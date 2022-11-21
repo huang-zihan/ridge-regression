@@ -1,11 +1,15 @@
 #include<iostream>
+#include<fstream>
+#include<string>
+#include<stdio.h>
+#include<string.h>
 using namespace std;
 #define MAXLEN 10
 
 // 超参数
 #define LAMDA 0.1
-#define LR 0.0009
-#define ITERS 2000
+#define LR 0.00003
+#define ITERS 1000
 
 class Matrix{
     double** m;
@@ -189,11 +193,84 @@ Matrix& operator+(Matrix& a, Matrix& b){
     return *new_mat;
 }
 
+class Dataloader{
+    Matrix* input;
+    Matrix* ground_truth;
+    int data_num=0;
+    int dimension=0;
+public:
+    int get_d(){return this->dimension;}
+    int get_data_num(){return this->data_num;}
+    Matrix& get_input_matrix(){return *(this->input);}
+    Matrix& get_ground_truth(){return *(this->ground_truth);}
+
+    void load_data(const char* filename){
+        ifstream f;
+        f.open(filename);
+        string s;
+        if(f){
+            get_line_and_dimension(f);
+
+            input = new Matrix(data_num,dimension);
+            ground_truth = new Matrix(1, data_num);
+
+            f.clear();
+            f.seekg(0, ios::beg);
+            cout << "file:" <<filename << " opened!" << endl;
+            for(int i=0; getline(f,s); i++){
+                s[s.length()-1]=' '; //方便后面调用分割函数使用,此处由于windows有\r符号需要替换成空格
+                char buf[64];
+                const char* p_const;
+                double value;
+                int tmp_d;
+
+                s.copy(buf,sizeof(buf),0);
+                p_const = strtok(buf, " ");
+                sscanf(p_const, "%lf", &value);
+
+                // 加载预测值
+                (*ground_truth)[0][i] = value;
+                // 加载各个维度的信息
+                for(int j=0;j<dimension;j++){
+                    p_const = strtok(NULL, " ");
+                    sscanf(p_const ,"%d:%lf", &tmp_d, &value);
+                    (*input)[i][j]=value;
+                }
+            }
+        }else{
+            cout << "can't open file!"<<endl;
+        }
+
+    }
+
+    void get_line_and_dimension(ifstream& f){
+        string s;
+        string tmp;
+        char buf[64];
+        char* p;
+        if(getline(f,s)){
+            data_num++;
+            s.copy(buf, sizeof(buf), 0);
+            p = strtok(buf,":");
+            while((p = strtok(NULL,":"))){
+                dimension++;
+            }
+        }
+        while(getline(f,s)){
+            data_num++;    
+        }
+        cout << "with date dimension: " << dimension << endl;
+        cout << "with total data point: " << data_num << endl;
+    }
+};
+
+
 class GD{
     Matrix* w, *y, *input;
     int d;
     double lamda=LAMDA;
     double lr=LR;
+    Dataloader loader;
 public:
     //构造函数
     // GD(int d):d(d){
@@ -206,6 +283,17 @@ public:
         this->y = new Matrix(y);
         (*w)[0][0]=0.1;
     }
+    //构造函数,读文件输入
+    GD(char* filename){
+        loader.load_data(filename);
+        this->d = loader.get_d();
+        this->w = new Matrix(1,d);
+        this->input = new Matrix(loader.get_input_matrix());
+        this->y = new Matrix(loader.get_ground_truth());
+
+        (*w)[0][0]=0.1;
+    }
+
     //计算内积
     double vector_inner_product(double* a, double *b, int d){
         double result=0;
@@ -237,11 +325,11 @@ public:
     // 使用梯度下降更新一步参数
     void update_step(){
         Matrix gradient(get_gradient(y, input));
-        cout << "grad:";
-        gradient.show();
+        // cout << "grad:";
+        // gradient.show();
         (*w)-=lr*gradient;
-        cout << "new w:";
-        w->show();
+        // cout << "new w:";
+        // w->show();
         show_loss();
     }
 
@@ -256,19 +344,23 @@ public:
         cout << "loss: "<<loss <<endl;
     }
 
+    // void save_model(){
+
+    // }
+
 };
 
-int main(){
 
-    Matrix x(6,2);
-    Matrix y(1,6);
-    x.get_input();
-    y.get_input();
+
+int main(){
   
     int step=ITERS;
 
-    GD calculer = GD(2,x,y);
-    for(int i=0;i<step;i++)
+    GD calculer = GD("./datasets/abalone.txt");
+    for(int i=0;i<step;i++){
+        cout <<"iters:   " << i;
         calculer.update_step();
+    }
+    
 }
 
