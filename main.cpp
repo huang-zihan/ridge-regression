@@ -8,8 +8,9 @@ using namespace std;
 
 // 超参数
 #define LAMDA 0.1
-#define LR 0.00003
-#define ITERS 1000
+#define LR 0.15
+#define ITERS 600
+
 
 class Matrix{
     double** m;
@@ -211,7 +212,7 @@ public:
         if(f){
             get_line_and_dimension(f);
 
-            input = new Matrix(data_num,dimension);
+            input = new Matrix(data_num,dimension); // 加1为了增加一维与常数b组合
             ground_truth = new Matrix(1, data_num);
 
             f.clear();
@@ -231,11 +232,12 @@ public:
                 // 加载预测值
                 (*ground_truth)[0][i] = value;
                 // 加载各个维度的信息
-                for(int j=0;j<dimension;j++){
+                for(int j=0;j<dimension-1;j++){
                     p_const = strtok(NULL, " ");
                     sscanf(p_const ,"%d:%lf", &tmp_d, &value);
                     (*input)[i][j]=value;
                 }
+                (*input)[i][dimension-1]=1; // 与b相乘
             }
         }else{
             cout << "can't open file!"<<endl;
@@ -255,6 +257,7 @@ public:
             while((p = strtok(NULL,":"))){
                 dimension++;
             }
+            dimension++; // 增加一维和常数b对其
         }
         while(getline(f,s)){
             data_num++;    
@@ -284,7 +287,7 @@ public:
         (*w)[0][0]=0.1;
     }
     //构造函数,读文件输入
-    GD(char* filename){
+    GD(const char* filename){
         loader.load_data(filename);
         this->d = loader.get_d();
         this->w = new Matrix(1,d);
@@ -307,18 +310,7 @@ public:
     Matrix& get_gradient(Matrix* ground_truth, Matrix* input){
         Matrix gradient(1,d);
         for(int i=0;i<input->get_row();i++){
-            // gradient.show();
-            // cout <<">>>" <<input->get_col()<<"  ";
-            // Matrix((*input)[i], input->get_col()).show();
-            // cout << ">>>" << ((*ground_truth)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d));
-            // Matrix( ((*ground_truth)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) ).show();
-            // Matrix test = Matrix((*input)[i], input->get_col()) * Matrix( ((*ground_truth)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) );
-            // test.show();
-            // cout <<"!!!"<<gradient[0][0]<<endl;
-            // cout <<"!!!"<<gradient[0][1]<<endl;
-            // gradient+=test;
-            gradient += Matrix((*input)[i], input->get_col()) * Matrix( ((*ground_truth)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) ); //
-            
+            gradient += Matrix((*input)[i], input->get_col()) * Matrix( ((*ground_truth)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) ); // 
         }
         return -2*gradient + lamda*(*w);
     }
@@ -327,7 +319,7 @@ public:
         Matrix gradient(get_gradient(y, input));
         // cout << "grad:";
         // gradient.show();
-        (*w)-=lr*gradient;
+        (*w)-= 1/(double)input->get_row() * lr*gradient;
         // cout << "new w:";
         // w->show();
         show_loss();
@@ -341,13 +333,9 @@ public:
             loss += tmp[0][0]*tmp[0][0];
         }
         loss += lamda*w->norm();
-        cout << "loss: "<<loss <<endl;
+        loss /= input->get_row();
+        cout << "loss: "<< loss <<endl;
     }
-
-    // void save_model(){
-
-    // }
-
 };
 
 
