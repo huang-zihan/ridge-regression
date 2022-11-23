@@ -3,12 +3,14 @@
 #include<string>
 #include<stdio.h>
 #include<string.h>
+#include<math.h>
 using namespace std;
 #define MAXLEN 10
 
 // 超参数
-#define LAMDA 0.1
-#define LR 0.15
+#define LAMDA 1
+// #define LR 0.15  for GD
+#define LR 0.000000000000000001
 #define ITERS 600
 
 
@@ -60,11 +62,16 @@ public:
     //打印矩阵内容
     void show(){
         for(int i=0;i<row;i++){
+            cout<<"[";
             for(int j=0;j<col;j++){
                 cout << m[i][j] << ' ';
             }
-            cout << endl;
+            cout << "]" <<endl;
         }
+    }
+    //
+    void show_shape(){
+        cout << "("<<row<<", "<<col<<")"<<endl;
     }
     // 从标准输入获取矩阵内容
     void get_input(){
@@ -79,6 +86,19 @@ public:
             for(int j=0;j<col;j++)
                 res+=(*this)[i][j]*(*this)[i][j];
         return res;
+    }
+
+    // 转置
+    Matrix& T(){
+        
+        Matrix* new_mat = new Matrix(col, row);
+
+        for(int i=0;i<col ;i++){
+            for(int j=0;j<row;j++){
+                (*new_mat)[i][j]=m[j][i];
+            }
+        }
+        return (*new_mat);
     }
 
     // 以下为一些运算符重载，方便矩阵运算
@@ -117,7 +137,7 @@ public:
 
     Matrix& operator-=( const Matrix& mat){
         if(row!=mat.get_row()||col!=mat.get_col()){
-            cout << "can\'t do the add!" << endl;
+            cout << "can\'t do the sub!" << endl;
             return *this;
         }
 
@@ -188,9 +208,49 @@ Matrix& operator *( const Matrix &a, const Matrix &b){
         return *new_mat;
 }
 
+Matrix& operator /( const Matrix &a, const Matrix &b){
+        
+        Matrix* new_mat;
+
+        if( (b.get_col()!=a.get_col() || b.get_row()!=a.get_row()) && 
+            !((b.get_row()==1&&b.get_col()==1||a.get_row()==1&&a.get_col()==1))
+        ){
+            cout << ">>>>" <<b.get_col()<<"  "<<a.get_col()<<endl;
+            cout <<"can't mul with different shape!"<<endl;
+            return *new_mat;
+        }
+        
+        if(b.get_row()==1&&b.get_col()==1){
+            // cout <<"called!"<<a.get_row() << a.get_col() <<endl;
+            new_mat = new Matrix(a.get_row(),a.get_col());
+            for(int i=0;i<a.get_row();i++)
+                for(int j=0;j<a.get_col();j++)
+                    (*new_mat)[i][j]=a[0][0] / b[i][j];
+        }else if(a.get_row()==1&&a.get_col()==1){
+            new_mat = new Matrix(b.get_row(), b.get_col());
+            for(int i=0;i<b.get_row();i++)
+                for(int j=0;j<b.get_col();j++)
+                    (*new_mat)[i][j]=a[i][j] / b[0][0];
+        }else{
+            new_mat = new Matrix(b.get_row(), b.get_col());
+            for(int i=0;i<b.get_row();i++)
+                for(int j=0;j<b.get_col();j++)
+                    (*new_mat)[i][j]=a[i][j] / b[i][j];
+        }
+        // new_mat->show();
+        return *new_mat;
+}
+
+
 Matrix& operator+(Matrix& a, Matrix& b){
     Matrix * new_mat = new Matrix(a);
     *new_mat += b;
+    return *new_mat;
+}
+
+Matrix& operator-(Matrix& a, Matrix& b){
+    Matrix * new_mat = new Matrix(a);
+    *new_mat -= b;
     return *new_mat;
 }
 
@@ -268,17 +328,14 @@ public:
 };
 
 
-class GD{
+// 梯度下降
+class GD {
     Matrix* w, *y, *input;
     int d;
     double lamda=LAMDA;
     double lr=LR;
     Dataloader loader;
 public:
-    //构造函数
-    // GD(int d):d(d){
-    //     w = new Matrix(1,d);
-    // }
     //构造函数
     GD(int d, Matrix& input, Matrix& y):d(d){
         this->w = new Matrix(1,d);
@@ -339,16 +396,140 @@ public:
 };
 
 
+Matrix& matmul( Matrix& a, Matrix&b){
+    if(a.get_col()!=b.get_row()){
+        if( !((a.get_col()==1&&a.get_row()==1) || (b.get_col()==1&&b.get_row()==1)) ){
+            cout << "can't do the matmul!" <<endl;
+            return a;
+        }
+    }
+    Matrix* new_mat = new Matrix(a.get_row(), b.get_col());
+    double value;
+    if(a.get_col()==1&&a.get_row()==1){
+        (*new_mat) = a*b;
+    }else if(b.get_col()==1&&b.get_row()==1){
+        (*new_mat) = b*a;
+    }else{
+        for(int i=0;i<a.get_row();i++){
+            for(int j=0;j<b.get_col();j++){
+                value = 0;
+                for(int k=0;k<a.get_col();k++){
+                    value+=a[i][k]*b[k][j];
+                }
+                (*new_mat)[i][j]=value;
+            }
+        }
+    }
+    
+    return *new_mat;
+}
+
+// 共轭梯度下降
+// 在非ridge回归模型中，回归系数正是线性方程组Ax=b的解，其中A=X′X，b=X′y
+// 在ridge回归模型中，回归系数正是线性方程组Ax=b的解，其中A=X′X+(1/2)*lamda，b=X′y
+class CD{
+Matrix* w, *y, *input;
+    int d;
+    double lamda=LAMDA;
+    double lr=LR;
+    Dataloader loader;
+public:
+    //构造函数
+    CD(int d, Matrix& input, Matrix& y):d(d){
+        this->w = new Matrix(1,d);
+        this->input = new Matrix(input);
+        this->y = new Matrix(y);
+        (*w)[0][0]=0.1;
+    }
+    //构造函数,读文件输入
+    CD(const char* filename){
+        loader.load_data(filename);
+        this->d = loader.get_d();
+        this->w = new Matrix(1,d);
+        this->input = new Matrix(loader.get_input_matrix());
+        this->y = new Matrix(loader.get_ground_truth());
+
+        (*w)[0][0]=0.1;
+    }
+
+    //计算内积
+    double vector_inner_product(double* a, double *b, int d){
+        double result=0;
+        for(int i=0;i<d;i++){
+            result+=*(a+i) * *(b+i);
+        }
+        // cout << *a << " " << *b << endl;
+        return result;
+    }
+
+    // 迭代更新参数
+    // input×w=y
+    void update(){
+        
+        Matrix A = Matrix( matmul((*input).T(), (*input)) );
+        Matrix lamda_mat = Matrix(d,d);
+        cout << lamda << endl;
+        for(int i=0;i<d;i++)
+            lamda_mat[i][i]=1.0/2.0*lamda;
+        A +=lamda_mat;
+        Matrix b = Matrix( matmul((*input).T(), (*y).T()) );
+        Matrix x = Matrix((*w).T() );
+
+        Matrix r = b - matmul(A, x);
+        Matrix p = Matrix(r);
+        Matrix a(0,0), beta(0,0);
+        while(get_loss()>=1){  //abs(r[0][0])>0.1
+            a = matmul(r.T(),r)/matmul(matmul(p.T(), A), p);
+            x += matmul(a,p);
+            Matrix next_r = r - matmul(matmul(a,A), p);
+            // if r is small exit, I change the condition to if loss is small
+            beta = matmul(next_r.T(),next_r)/matmul(r.T(),r);
+            p = next_r + matmul(beta, p);
+            r = next_r;
+            cout <<"r: [ " << r[0][0] <<" ]";
+            x.T().show();
+            (*w) = x;
+            w->T().show();
+            show_loss();
+        }
+    }
+
+    //输出loss
+    void show_loss(){
+        double loss=0;
+        for(int i=0;i<input->get_row();i++){
+            Matrix tmp =  Matrix( ((*y)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) );
+            loss += tmp[0][0]*tmp[0][0];
+        }
+        loss += lamda*w->norm();
+        loss /= input->get_row();
+        cout << "loss: "<< loss <<endl;
+    }
+    double get_loss(){
+        double loss=0;
+        for(int i=0;i<input->get_row();i++){
+            Matrix tmp =  Matrix( ((*y)[0][i] - vector_inner_product((*w)[0],(*input)[i], this->d)) );
+            loss += tmp[0][0]*tmp[0][0];
+        }
+        loss += lamda*w->norm();
+        loss /= input->get_row();
+        return loss;
+    }
+};
+
 
 int main(){
   
     int step=ITERS;
-
-    GD calculer = GD("./datasets/abalone.txt");
-    for(int i=0;i<step;i++){
-        cout <<"iters:   " << i;
-        calculer.update_step();
-    }
+    // GD
+    // GD calculer = GD("./datasets/abalone.txt");
+    // for(int i=0;i<step;i++){
+    //     cout <<"iters:   " << i;
+    //     calculer.update_step();
+    // }
     
+    // CD
+    CD calculer = CD("./datasets/abalone.txt");
+    calculer.update();
 }
 
