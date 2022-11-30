@@ -5,9 +5,9 @@
 using namespace std;
 
 // 方法选择
-// #define __GD__
+#define __GD__
 // #define __CD__
-#define __QuasiNewton__
+// #define __QuasiNewton__
 
 int main(){
 
@@ -15,10 +15,7 @@ int main(){
     // GD
     int step=ITERS;
     GD calculer = GD("./datasets/abalone.txt");
-    for(int i=0;i<step;i++){
-        cout <<"iters:   " << i;
-        calculer.update_step();
-    }
+    calculer.update(step);
 #endif
 #ifdef __CD__
     // CD
@@ -30,7 +27,6 @@ int main(){
     QuasiNewton calculer = QuasiNewton("./datasets/abalone.txt");
     calculer.quasi_newton_iter();
 #endif
-
     calculer.show_result();
 }
 

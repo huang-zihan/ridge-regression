@@ -86,10 +86,18 @@ public:
     //构造函数,读文件输入
     GD(const char* filename):MethodBase(filename){}
 
+    void update(int iters){
+        cout <<"begin training..."<<endl;
+        for(int i=0;i<iters;i++){
+            cout << "iters: "<< i<< "  ";
+            update_step();
+        }
+    }
+
     // 使用梯度下降更新一步参数
     void update_step(){
         Matrix gradient(get_gradient(y, input));
-        (*w)-= 1/(double)input->get_row() * lr*gradient;
+        (*w)-= 1/(double)input->get_row() * lr * gradient;
         show_loss();
     }
 };
@@ -105,33 +113,34 @@ public:
     CD(const char* filename):MethodBase(filename){}
     // 迭代更新参数
     // input×w=y
-    void update();
-};
-void CD::update(){
-    Matrix A = Matrix( matmul((*input).T(), (*input)) );
-    Matrix lamda_mat = Matrix(d,d);
-    cout << lamda << endl;
-    for(int i=0;i<d;i++)
-        lamda_mat[i][i]=1.0/2.0*lamda;
-    A +=lamda_mat;
-    Matrix b = Matrix( matmul((*input).T(), (*y).T()) );
-    Matrix x = Matrix((*w).T() );
+    void update(){
+        Matrix A = Matrix( matmul((*input).T(), (*input)) );
+        Matrix lamda_mat = Matrix(d,d);
+        cout << lamda << endl;
+        for(int i=0;i<d;i++)
+            lamda_mat[i][i]=1.0/2.0*lamda;
+        A +=lamda_mat;
+        Matrix b = Matrix( matmul((*input).T(), (*y).T()) );
+        Matrix x = Matrix((*w).T() );
 
-    Matrix r = b - matmul(A, x);
-    Matrix p = Matrix(r);
-    Matrix a(0,0), beta(0,0);
-    while(abs(r[0][0])>1e-8){  //abs(r[0][0])>0.1
-        a = matmul(r.T(),r)/matmul(matmul(p.T(), A), p);
-        x += matmul(a,p);
-        Matrix next_r = r - matmul(matmul(a,A), p);
-        beta = matmul(next_r.T(),next_r)/matmul(r.T(),r);
-        p = next_r + matmul(beta, p);
-        r = next_r;
-        (*w) = x;
-        show_loss();
+        Matrix r = b - matmul(A, x);
+        Matrix p = Matrix(r);
+        Matrix a(0,0), beta(0,0);
+        cout <<"begin training..."<<endl;
+        for(int i=1;abs(r[0][0])>1e-8 || i<=150;i++){  //abs(r[0][0])>0.1
+            a = matmul(r.T(),r)/matmul(matmul(p.T(), A), p);
+            x += matmul(a,p);
+            Matrix next_r = r - matmul(matmul(a,A), p);
+            beta = matmul(next_r.T(),next_r)/matmul(r.T(),r);
+            p = next_r + matmul(beta, p);
+            r = next_r;
+            (*w) = x.T();
+            cout << "iters: "<< i<< "  ";
+            show_loss();
 
+        }
     }
-}
+};
 
 // 拟牛顿法
 class QuasiNewton: public MethodBase{
@@ -142,14 +151,9 @@ public:
         
     }
     //构造函数,读文件输入
-    QuasiNewton(const char* filename):MethodBase(filename){
-        // 参考参数(由GD得 -0.415388 4.4534 5.51199 4.64595 4.90556 -15.4694 -2.40434 11.9906 4.58096)
-        double a[9]={-0.815388, 5.4534, 3.51199, 15.64595, 4.90556, -1.4694, -2.40434, 11.9906, 4.58096};
-        delete w;
-        w = new Matrix(a,9);
-    }
+    QuasiNewton(const char* filename):MethodBase(filename){}
 
-    // 使用梯度下降更新一步参数
+    // 使用梯度下降更新一步参数 H的更新采用SR1算法
     void quasi_newton_iter(){
         Matrix H = Matrix(input->get_col(), input->get_col());
         Matrix delta = Matrix(w->get_row(), w->get_col());
@@ -157,24 +161,25 @@ public:
         Matrix g = get_gradient(y, &A).T();
         Matrix delta_g = Matrix(g.get_row(), g.get_col());
         Matrix sk = Matrix(w->get_row(), w->get_col());
+
+        cout <<"initial loss:  " << get_loss() << endl;
+        cout <<"begin training..." <<endl;
         for(int i=0; i<input->get_col();i++)
             H[i][i]=1;
         for(int i=0; 1; i++){ //while(g.norm()>1)
             delta = (-1)*matmul(H,g);
             // cout << g.norm() << endl;
-            if(g.norm()<0.7)
+            if(g.norm()<0.7 && i>=150)
                 break;
             // 此处的lr可以通过搜索步长得出
-            // double step=get_best_stepsize(delta.T());
-            double step = LR;
+            double step=get_best_stepsize(delta.T());
             sk = step * delta; // 计算参数更新量
             (*w) += sk.T(); // 更新参数
             delta_g = get_gradient(y, &A).T() - g; // 计算梯度差
             g = get_gradient(y, &A).T(); // 计算新梯度
             // 更新近似矩阵
             H += matmul( (sk-matmul(H,delta_g)), (sk-matmul(H,delta_g)).T() ) / ( matmul((sk-matmul(H,delta_g)).T(), delta_g) );
-            // H += matmul(delta,delta.T())/matmul(delta.T(),delta_g) - matmul(matmul(G,delta_g), matmul(delta_g.T(), G))/matmul(matmul(delta_g.T(),G), delta_g);
-            cout << "loss: "<< get_loss() << ",  with step:  "<< step/LR << endl;
+            cout << "iters: "<< i << "  " << "with step:  "<< step/LR << "  loss: "<< get_loss() <<endl;
         }
     }
 
