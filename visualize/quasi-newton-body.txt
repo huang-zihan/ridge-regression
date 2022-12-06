@@ -1,0 +1,27 @@
+with date dimension: 15
+with total data point: 252
+file:./datasets/bodyfat.txt opened!
+finished!
+begin training...
+ : : initial loss:  1.1146
+iters: 0  with step:  1.90735e-06  loss: 0.0842583
+iters: 1  with step:  0.000976562  loss: 0.06968
+iters: 2  with step:  0.000976562  loss: 0.0686777
+iters: 3  with step:  0.015625  loss: 0.0686394
+iters: 4  with step:  0.03125  loss: 0.0685813
+iters: 5  with step:  0.25  loss: 0.0683338
+iters: 6  with step:  1  loss: 0.0677521
+iters: 7  with step:  4  loss: 0.0665269
+iters: 8  with step:  8  loss: 0.0620078
+iters: 9  with step:  32  loss: 0.0472481
+iters: 10  with step:  64  loss: 0.0239046
+iters: 11  with step:  32  loss: 0.0150657
+iters: 12  with step:  64  loss: 0.00579831
+iters: 13  with step:  128  loss: 0.000782461
+iters: 14  with step:  128  loss: 0.000274025
+iters: 15  with step:  64  loss: 7.15764e-05
+iters: 16  with step:  64  loss: 5.05718e-05
+iters: 17  with step:  32  loss: 4.97062e-05
+iters: 18  with step:  16  loss: 4.96145e-05
+iters: 19  with step:  8  loss: 4.96067e-05
+iters: 20  with step:  5.96046e-08  loss: 4.96067e-05

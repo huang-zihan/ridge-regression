@@ -1,0 +1,58 @@
+with date dimension: 14
+with total data point: 506
+file:./datasets/housing.txt opened!
+finished!
+0.001
+begin training...
+ : : initial loss:  592.147
+iters: 0  loss: 129.703
+iters: 1  loss: 80.9946
+iters: 2  loss: 72.334
+iters: 3  loss: 66.5099
+iters: 4  loss: 50.5945
+iters: 5  loss: 49.3156
+iters: 6  loss: 46.2132
+iters: 7  loss: 42.0741
+iters: 8  loss: 42.0134
+iters: 9  loss: 32.0421
+iters: 10  loss: 30.2735
+iters: 11  loss: 24.7863
+iters: 12  loss: 24.5151
+iters: 13  loss: 24.47
+iters: 14  loss: 24.4199
+iters: 15  loss: 24.4197
+iters: 16  loss: 24.4196
+iters: 17  loss: 24.0323
+iters: 18  loss: 24.0249
+iters: 19  loss: 24.0246
+iters: 20  loss: 22.1426
+iters: 21  loss: 22.1426
+iters: 22  loss: 22.0459
+iters: 23  loss: 22.005
+iters: 24  loss: 22.0046
+iters: 25  loss: 21.8981
+iters: 26  loss: 21.8981
+iters: 27  loss: 21.8981
+iters: 28  loss: 21.8981
+iters: 29  loss: 21.8981
+iters: 30  loss: 21.8981
+iters: 31  loss: 21.8981
+iters: 32  loss: 21.8981
+iters: 33  loss: 21.8981
+iters: 34  loss: 21.8981
+iters: 35  loss: 21.8981
+iters: 36  loss: 21.8981
+iters: 37  loss: 21.8981
+iters: 38  loss: 21.8981
+iters: 39  loss: 21.8981
+iters: 40  loss: 21.8981
+iters: 41  loss: 21.8981
+iters: 42  loss: 21.8981
+iters: 43  loss: 21.8981
+iters: 44  loss: 21.8981
+iters: 45  loss: 21.8981
+iters: 46  loss: 21.8981
+iters: 47  loss: 21.8981
+iters: 48  loss: 21.8981
+iters: 49  loss: 21.8981
+iters: 50  loss: 21.8981

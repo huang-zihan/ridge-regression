@@ -1,0 +1,57 @@
+with date dimension: 14
+with total data point: 506
+file:./datasets/housing.txt opened!
+finished!
+begin training...
+ : : initial loss:  592.147
+iters: 0  with step:  4.76837e-07  loss: 147.838
+iters: 1  with step:  3.8147e-06  loss: 102.881
+iters: 2  with step:  0.000244141  loss: 94.2298
+iters: 3  with step:  0.000488281  loss: 88.6215
+iters: 4  with step:  0.00390625  loss: 72.7067
+iters: 5  with step:  0.0078125  loss: 68.5366
+iters: 6  with step:  0.015625  loss: 64.3923
+iters: 7  with step:  0.125  loss: 55.0964
+iters: 8  with step:  0.0625  loss: 48.5926
+iters: 9  with step:  0.015625  loss: 48.3427
+iters: 10  with step:  0.125  loss: 48.2006
+iters: 11  with step:  4  loss: 46.4844
+iters: 12  with step:  128  loss: 23.0493
+iters: 13  with step:  64  loss: 22.1269
+iters: 14  with step:  128  loss: 21.8982
+iters: 15  with step:  128  loss: 21.8981
+iters: 16  with step:  512  loss: 21.8981
+iters: 17  with step:  1.90735e-06  loss: 21.8981
+iters: 18  with step:  9.53674e-07  loss: 21.8981
+iters: 19  with step:  1.90735e-06  loss: 21.8981
+iters: 20  with step:  5.96046e-08  loss: 21.8981
+iters: 21  with step:  9.53674e-07  loss: 21.8981
+iters: 22  with step:  4.76837e-07  loss: 21.8981
+iters: 23  with step:  9.53674e-07  loss: 21.8981
+iters: 24  with step:  1.90735e-06  loss: 21.8981
+iters: 25  with step:  5.96046e-08  loss: 21.8981
+iters: 26  with step:  1.19209e-07  loss: 21.8981
+iters: 27  with step:  2.38419e-07  loss: 21.8981
+iters: 28  with step:  3.8147e-06  loss: 21.8981
+iters: 29  with step:  3.8147e-06  loss: 21.8981
+iters: 30  with step:  1.19209e-07  loss: 21.8981
+iters: 31  with step:  5.96046e-08  loss: 21.8981
+iters: 32  with step:  4.76837e-07  loss: 21.8981
+iters: 33  with step:  1.90735e-06  loss: 21.8981
+iters: 34  with step:  2.38419e-07  loss: 21.8981
+iters: 35  with step:  4.76837e-07  loss: 21.8981
+iters: 36  with step:  5.96046e-08  loss: 21.8981
+iters: 37  with step:  1.19209e-07  loss: 21.8981
+iters: 38  with step:  3.8147e-06  loss: 21.8981
+iters: 39  with step:  2.38419e-07  loss: 21.8981
+iters: 40  with step:  9.53674e-07  loss: 21.8981
+iters: 41  with step:  4.76837e-07  loss: 21.8981
+iters: 42  with step:  1.19209e-07  loss: 21.8981
+iters: 43  with step:  2.38419e-07  loss: 21.8981
+iters: 44  with step:  2.38419e-07  loss: 21.8981
+iters: 45  with step:  4.76837e-07  loss: 21.8981
+iters: 46  with step:  1.19209e-07  loss: 21.8981
+iters: 47  with step:  4.76837e-07  loss: 21.8981
+iters: 48  with step:  4.76837e-07  loss: 21.8981
+iters: 49  with step:  7.62939e-06  loss: 21.8981
+iters: 50  with step:  2.38419e-07  loss: 21.8981

@@ -1,0 +1,58 @@
+with date dimension: 15
+with total data point: 252
+file:./datasets/bodyfat.txt opened!
+finished!
+0.01
+begin training...
+ : : initial loss:  1.1146
+iters: 0  loss: 0.0162051
+iters: 1  loss: 0.00143715
+iters: 2  loss: 0.000366982
+iters: 3  loss: 0.000346379
+iters: 4  loss: 0.000328555
+iters: 5  loss: 0.000328237
+iters: 6  loss: 0.000308482
+iters: 7  loss: 0.000305783
+iters: 8  loss: 0.00030439
+iters: 9  loss: 0.000304083
+iters: 10  loss: 0.000303446
+iters: 11  loss: 0.000302416
+iters: 12  loss: 0.000302386
+iters: 13  loss: 0.000301019
+iters: 14  loss: 0.000301018
+iters: 15  loss: 0.000300999
+iters: 16  loss: 0.000300569
+iters: 17  loss: 0.000300287
+iters: 18  loss: 0.000300287
+iters: 19  loss: 0.000290049
+iters: 20  loss: 0.000283938
+iters: 21  loss: 6.54683e-05
+iters: 22  loss: 6.52214e-05
+iters: 23  loss: 5.082e-05
+iters: 24  loss: 5.082e-05
+iters: 25  loss: 5.082e-05
+iters: 26  loss: 5.082e-05
+iters: 27  loss: 5.082e-05
+iters: 28  loss: 5.082e-05
+iters: 29  loss: 5.082e-05
+iters: 30  loss: 5.082e-05
+iters: 31  loss: 5.082e-05
+iters: 32  loss: 5.082e-05
+iters: 33  loss: 5.082e-05
+iters: 34  loss: 5.082e-05
+iters: 35  loss: 5.082e-05
+iters: 36  loss: 5.082e-05
+iters: 37  loss: 5.082e-05
+iters: 38  loss: 5.082e-05
+iters: 39  loss: 5.082e-05
+iters: 40  loss: 5.082e-05
+iters: 41  loss: 5.082e-05
+iters: 42  loss: 5.082e-05
+iters: 43  loss: 5.082e-05
+iters: 44  loss: 5.082e-05
+iters: 45  loss: 5.082e-05
+iters: 46  loss: 5.082e-05
+iters: 47  loss: 5.082e-05
+iters: 48  loss: 5.082e-05
+iters: 49  loss: 5.082e-05
+iters: 50  loss: 5.082e-05

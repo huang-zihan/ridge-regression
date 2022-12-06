@@ -2,6 +2,7 @@
 #include"matrix.h"
 #include"config.h"
 #include"dataloader.h"
+#include<math.h>
 
 class MethodBase{
 protected:
@@ -20,9 +21,16 @@ public:
 
     MethodBase(const char* filename){
         loader.load_data(filename);
+        cout << "finished!" << endl;
         this->d = loader.get_d();
-        double a[9]={-0.815388, 5.4534, 3.51199, 15.64595, 4.90556, -1.4694, -2.40434, 11.9906, 4.58096};
-        this->w = new Matrix(a, 9);
+        // 对abalone
+        // double a[9]={-0.815388, 5.4534, 3.51199, 15.64595, 4.90556, -1.4694, -2.40434, 11.9906, 4.58096};
+        // this->w = new Matrix(a, 9);
+        // 对bodyfat
+        // double a[15]={-0.00118276, 0.00129494, -0.000437999, 0.00312879, 0.00119498, 0.00231116, 0.00110519, 0.00270953, 0.00147927, 0.00122504, 0.000819305, 0.000806894, 0.000997805, 0.000666574, 4.84302e-05};
+        // this->w = new Matrix(a, 15);
+        this->w = new Matrix(1,this->d);
+
         this->input = new Matrix(loader.get_input_matrix());
         this->y = new Matrix(loader.get_ground_truth());
 
@@ -88,6 +96,7 @@ public:
 
     void update(int iters){
         cout <<"begin training..."<<endl;
+        cout <<" : : initial loss:  " << get_loss() << endl;
         for(int i=0;i<iters;i++){
             cout << "iters: "<< i<< "  ";
             update_step();
@@ -97,7 +106,7 @@ public:
     // 使用梯度下降更新一步参数
     void update_step(){
         Matrix gradient(get_gradient(y, input));
-        (*w)-= 1/(double)input->get_row() * lr * gradient;
+        (*w) -= 1/(double)input->get_row() * lr * gradient;
         show_loss();
     }
 };
@@ -127,7 +136,8 @@ public:
         Matrix p = Matrix(r);
         Matrix a(0,0), beta(0,0);
         cout <<"begin training..."<<endl;
-        for(int i=1;abs(r[0][0])>1e-8 || i<=150;i++){  //abs(r[0][0])>0.1
+        cout <<" : : initial loss:  " << get_loss() << endl;
+        for(int i=0;abs(r[0][0])>1e-8 || i<=150;i++){  //abs(r[0][0])>0.1
             a = matmul(r.T(),r)/matmul(matmul(p.T(), A), p);
             x += matmul(a,p);
             Matrix next_r = r - matmul(matmul(a,A), p);
@@ -147,9 +157,7 @@ class QuasiNewton: public MethodBase{
 
 public:
     //构造函数
-    QuasiNewton(int d, Matrix& input, Matrix& y):MethodBase(d, input, y){
-        
-    }
+    QuasiNewton(int d, Matrix& input, Matrix& y):MethodBase(d, input, y){}
     //构造函数,读文件输入
     QuasiNewton(const char* filename):MethodBase(filename){}
 
@@ -161,15 +169,16 @@ public:
         Matrix g = get_gradient(y, &A).T();
         Matrix delta_g = Matrix(g.get_row(), g.get_col());
         Matrix sk = Matrix(w->get_row(), w->get_col());
-
-        cout <<"initial loss:  " << get_loss() << endl;
+        double loss = get_loss();
         cout <<"begin training..." <<endl;
+        cout <<" : : initial loss:  " << loss << endl;
         for(int i=0; i<input->get_col();i++)
             H[i][i]=1;
         for(int i=0; 1; i++){ //while(g.norm()>1)
+            double prev_loss = loss;
             delta = (-1)*matmul(H,g);
             // cout << g.norm() << endl;
-            if(g.norm()<0.7 && i>=150)
+            if( g.norm()<0.7 && i>=150)
                 break;
             // 此处的lr可以通过搜索步长得出
             double step=get_best_stepsize(delta.T());
@@ -179,7 +188,11 @@ public:
             g = get_gradient(y, &A).T(); // 计算新梯度
             // 更新近似矩阵
             H += matmul( (sk-matmul(H,delta_g)), (sk-matmul(H,delta_g)).T() ) / ( matmul((sk-matmul(H,delta_g)).T(), delta_g) );
-            cout << "iters: "<< i << "  " << "with step:  "<< step/LR << "  loss: "<< get_loss() <<endl;
+            loss = get_loss();
+            cout << "iters: "<< i << "  " << "with step:  "<< step/LR << "  loss: "<< loss <<endl;
+            // 若loss不变化则退出
+            if(abs(loss-prev_loss)<1e-10 && i>=150)
+                break;
         }
     }
 
@@ -188,11 +201,20 @@ public:
         double lr=LR;
         double best_step=lr;
         double min = get_simulate_loss(*w + lr*delta);
+        // 放大搜索
         for(int i=2;i<MAX_LINSEARCH_STEP;i++){
-            Matrix simu_para= (*w)+i*LR*delta;
+            Matrix simu_para= (*w)+pow(2,i)*LR*delta;
             if(get_simulate_loss(simu_para)<min){
                 min = get_simulate_loss(simu_para);
-                best_step=i*lr;
+                best_step=pow(2,i)*lr;
+            }
+        }
+        // 缩小搜索
+        for(int i=2;i<MAX_LINSEARCH_STEP;i++){
+            Matrix simu_para= (*w)+LR*delta/pow(2,i);
+            if(get_simulate_loss(simu_para)<min){
+                min = get_simulate_loss(simu_para);
+                best_step=lr/pow(2,i);
             }
         }
         return best_step;

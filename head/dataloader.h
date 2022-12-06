@@ -1,5 +1,6 @@
 #pragma once
 #include"matrix.h"
+#include"config.h"
 #include<iostream>
 #include<string.h>
 #include<fstream>
@@ -31,7 +32,7 @@ public:
             cout << "file:" <<filename << " opened!" << endl;
             for(int i=0; getline(f,s); i++){
                 s[s.length()-1]=' '; //方便后面调用分割函数使用,此处由于windows有\r符号需要替换成空格
-                char buf[64];
+                char buf[READ_BUFFERSIZE];
                 const char* p_const;
                 double value;
                 int tmp_d;
@@ -59,11 +60,12 @@ public:
     void get_line_and_dimension(ifstream& f){
         string s;
         string tmp;
-        char buf[64];
+        char buf[READ_BUFFERSIZE];
         char* p;
         if(getline(f,s)){
             data_num++;
             s.copy(buf, sizeof(buf), 0);
+            // cout << buf << endl;
             p = strtok(buf,":");
             while((p = strtok(NULL,":"))){
                 dimension++;
